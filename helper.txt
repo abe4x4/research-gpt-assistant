@@ -1,0 +1,27 @@
+#Activate the venv
+source .venv/bin/activate
+
+#Verify Python is coming from the venv
+which python
+
+#Sanity check Imports still OK?
+python - << 'PY'
+import numpy, pandas, sklearn, PyPDF2, nltk, dotenv
+print("✅ All major packages import successfully")
+PY
+
+#Autoactivate
+Step 1. Create a .envrc file
+#Inside your project:
+echo 'source .venv/bin/activate' > .envrc
+
+Step 2 install direnv
+#Install direnv (Ubuntu 22.04/24.04):
+sudo apt update
+sudo apt install direnv -y 
+OR sudo snap install direnv
+
+Step 3. Hook direnv into your shell
+
+Add this line at the bottom of your ~/.bashrc:
+eval "$(direnv hook bash)"

@@ -19,9 +19,7 @@ An intelligent research tool that processes academic papers, generates summaries
 - [x] Implement PDF → text chunks → **summary** (`results/summaries/*.md`)
 - [x] Implement analysis output (methods, key results, limitations) (`results/analyses/*.md`)
 - [x] Push repo to GitHub (`abe4x4/research-gpt-assistant`)
-
-### 🚧 In Progress
-- [ ] Improve metadata extraction (title, authors, abstract) and save standalone **metadata JSON** (`results/metadata/*.json`)
+- [x] Improve metadata extraction (title, authors, abstract) and save standalone **metadata JSON** (`results/metadata/*.json`)
 
 ### 🔜 Next Up
 - [ ] Prompt library in `prompts/` (contributions / limitations / explain-like-I’m-5)
