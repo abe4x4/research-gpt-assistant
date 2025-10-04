@@ -15,19 +15,22 @@
 - [x] Save per-PDF metadata JSON (`results/metadata/`)
 - [x] Add prompt library (`prompts/`)
 - [x] Record `prompt_file` used in metadata JSON
-- [x] Add Jupyter notebook demo (`notebooks/quickstart.ipynb`)
 - [x] Add `--pdf` flag to target a single PDF file
+- [x] Add `--data-dir` flag to scan custom folders
 
 ### In Progress
-- [ ] Add `--data-dir` flag to scan custom folders
+- [ ] Add Jupyter notebooks (usage examples)
 
 ### Future Enhancements
 - [ ] Multi-PDF semantic search and cross-paper summaries
 - [ ] Richer metadata (citations, venues, year)
 - [ ] Export results to CSV/JSONL
 - [ ] Evaluation metrics (ROUGE, BLEU)
+
 ---
+
 ## 📖 Project Overview
+
 ResearchGPT Assistant is an intelligent research tool that leverages advanced AI techniques to help researchers process academic documents, generate insights, and automate research workflows.  
 
 This project is the **capstone project** and demonstrates the integration of:
@@ -35,7 +38,9 @@ This project is the **capstone project** and demonstrates the integration of:
 - NLP preprocessing  
 - Information retrieval  
 - AI summarization  
+
 ---
+
 ## ✨ Features
 
 ### Core Capabilities
@@ -51,107 +56,89 @@ This project is the **capstone project** and demonstrates the integration of:
 - **Custom Prompt Steering**: Use external text files (e.g., “Summarize contributions”, “Explain like I’m 5”).
 - **Flexible Querying**: Override default queries with CLI arguments (`--query`).
 - **Chunked Processing**: Clean and split papers into overlapping text chunks for retrieval-based summarization.
+
 ---
+
 ## 📂 Project Structure
-research_gpt_assistant/
-├── notebooks/
-│ └── quickstart.ipynb <-- NEW interactive notebook
-│ └── quickstart.py <-- Exported Python equivalent
 
-├── data/
-│ └── sample_papers/ # Place your PDFs here
+research_gpt_assistant/  
+├── notebooks/  
+│   └── quickstart.ipynb     <-- NEW  
+├── data/  
+│   └── sample_papers/       # Place your PDFs here  
+├── results/  
+│   ├── summaries/           # Generated summaries (.md)  
+│   ├── analyses/            # Generated analyses (.md)  
+│   └── metadata/            # Extracted metadata (.json)  
+├── prompts/                 # Optional prompt steering files  
+│   ├── summarize_contributions.txt  
+│   ├── summarize_limitations.txt  
+│   └── explain_like_im_5.txt  
+├── src/                     # Utility modules  
+│   ├── pdf_utils.py  
+│   ├── text_utils.py  
+│   ├── indexer.py  
+│   ├── summarizer.py  
+│   ├── analyst.py  
+│   ├── io_utils.py  
+│   └── metadata_utils.py  
+├── main.py                  # Entry point  
+├── requirements.txt  
+└── README.md  
 
-├── results/
-│ ├── summaries/ # Generated summaries (.md)
-│ ├── analyses/ # Generated analyses (.md)
-│ └── metadata/ # Extracted metadata (.json)
-
-├── prompts/ # Optional prompt steering files
-│ ├── summarize_contributions.txt
-│ ├── summarize_limitations.txt
-│ └── explain_like_im_5.txt
-
-├── src/ # Utility modules
-│ ├── pdf_utils.py
-│ ├── text_utils.py
-│ ├── indexer.py
-│ ├── summarizer.py
-│ ├── analyst.py
-│ ├── io_utils.py
-│ └── metadata_utils.py
-
-├── main.py # Entry point
-├── requirements.txt
-└── README.md
 ---
+
 ## ⚙️ Setup Instructions
 
 1. **Clone the repo**
    git clone https://github.com/abe4x4/research-gpt-assistant.git
    cd research-gpt-assistant
-Create a virtual environment with uv
 
-2. Create a virtual environment with uv
-uv venv .venv
-source .venv/bin/activate
-Install dependencies
+2. **Create a virtual environment with uv**
+   uv venv .venv
+   source .venv/bin/activate
 
-3. Install dependencies from requirements.txt
-uv pip install -r requirements.txt
-Configure your API key
+3. **Install dependencies**
+   uv pip install -r requirements.txt
 
-4. Configure API key in .env
-Add to .env:
+4. **Configure your API key**  
+   Add to `.env`:
+   MISTRAL_API_KEY=your_api_key_here
 
-MISTRAL_API_KEY=your_api_key_here
-Reload into shell:
+   Reload into shell:
+   export $(grep -v '^#' .env | xargs)
 
-Reload into shell
-export $(grep -v '^#' .env | xargs)
+---
 
-▶️ Usage Examples
+## ▶️ Usage Examples
 
-Process all PDFs in data/sample_papers/
+### Default run (process all PDFs in data/sample_papers/)
 python main.py
 
-Custom query & top-k retrieval
+### Custom query & top-k retrieval
 python main.py --k 8 --query "Summarize contributions and limitations."
 
-Process a single PDF only
-python main.py --k 8 --query "Summarize contributions and limitations."
-
-Use a custom prompt file
+### Use a custom prompt file
 python main.py --k 8 \
   --query "Summarize contributions only." \
   --prompt prompts/summarize_contributions.txt
 
-Check outputs
-Summaries → results/summaries/
-Analyses → results/analyses/
-Metadata → results/metadata/
+### Process a specific PDF only
+python main.py --pdf data/sample_papers/attention_is_all_you_need.pdf
 
-📓 Interactive Notebook
-For a step-by-step demonstration of the full pipeline (load PDF → metadata → chunking → search → summarization → analysis → metadata JSON),
-open the notebook in VS Code or Jupyter:
+### Process all PDFs in a custom folder
+python main.py --data-dir /path/to/your/pdfs
 
-jupyter notebook notebooks/quickstart.ipynb
-This notebook walks through:
+### Check outputs
+- Summaries → results/summaries/
+- Analyses → results/analyses/
+- Metadata → results/metadata/
 
-Loading the sample paper (attention_is_all_you_need.pdf)
+---
 
-Extracting metadata
+## 📊 Example Output
 
-Cleaning + chunking text
-
-Building a TF-IDF index and running search
-
-Summarizing and analyzing chunks
-
-Saving outputs into summaries, analyses, and metadata folders
-
-📊 Example Output
-Metadata JSON (results/metadata/attention_is_all_you_need_meta.json):
-
+**Metadata JSON (results/metadata/attention_is_all_you_need_meta.json):**
 {
   "file": "attention_is_all_you_need.pdf",
   "pdf_path": "data/sample_papers/attention_is_all_you_need.pdf",
@@ -165,13 +152,20 @@ Metadata JSON (results/metadata/attention_is_all_you_need_meta.json):
     "analysis_md": "results/analyses/attention_is_all_you_need_analysis.md"
   }
 }
-📚 Prompt Library
+
+---
+
+## 📚 Prompt Library
+
 Examples of included prompt files:
-- summarize_contributions.txt: Focus only on novel contributions.
-- summarize_limitations.txt: Highlight weaknesses, assumptions, and limitations.
-- explain_like_im_5.txt: Explain the paper in simple terms.
+- **summarize_contributions.txt**: Focus only on novel contributions.  
+- **summarize_limitations.txt**: Highlight weaknesses, assumptions, and limitations.  
+- **explain_like_im_5.txt**: Explain the paper in simple terms.  
 
-👉 Add your own .txt files inside prompts/ to extend the library.
+Add your own `.txt` files inside `prompts/` to extend the library.
 
-✍️ Author
+---
+
+## ✍️ Author
+
 Built by Ibrahim Abouzeid (@abe4x4) as a capstone project for mastering Python, NLP, and AI-assisted research workflows.
