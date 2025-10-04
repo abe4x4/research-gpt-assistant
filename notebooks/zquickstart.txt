@@ -1,0 +1,199 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "05536626",
+   "metadata": {},
+   "source": [
+    "# 🚀 ResearchGPT Quickstart\n",
+    "\n",
+    "This notebook demonstrates the full pipeline on the sample paper:\n",
+    "\n",
+    "- Load PDF\n",
+    "- Extract metadata\n",
+    "- Clean & chunk text\n",
+    "- Build index & run search\n",
+    "- Summarize & analyze chunks\n",
+    "- Save metadata JSON\n",
+    "\n",
+    "Run step by step to see how the project works."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7c87e006",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os, sys, json\n",
+    "from pathlib import Path\n",
+    "from dotenv import load_dotenv\n",
+    "\n",
+    "# Ensure project root is on sys.path (notebooks → project root)\n",
+    "project_root = Path.cwd().parent\n",
+    "if str(project_root) not in sys.path:\n",
+    "    sys.path.insert(0, str(project_root))\n",
+    "\n",
+    "print(\"✅ Project root added:\", project_root)\n",
+    "\n",
+    "# Load environment variables\n",
+    "load_dotenv()\n",
+    "print(\"✅ MISTRAL_API_KEY loaded?\", bool(os.getenv(\"MISTRAL_API_KEY\")))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e4622950",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from src.config import MISTRAL_API_KEY\n",
+    "from src.pdf_utils import load_all_pdfs_text\n",
+    "from src.text_utils import clean_text, chunk_text\n",
+    "from src.indexer import build_index, search\n",
+    "from src.summarizer import summarize_chunks\n",
+    "from src.analyst import analyze_chunks\n",
+    "from src.metadata_utils import extract_metadata\n",
+    "from src.io_utils import safe_stem\n",
+    "\n",
+    "print(\"✅ Imports successful!\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7a54b82b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_path = project_root / \"data/sample_papers/attention_is_all_you_need.pdf\"\n",
+    "\n",
+    "print(\"Looking for PDFs in:\", pdf_path.parent.resolve())\n",
+    "pdfs = list(pdf_path.parent.glob(\"*.pdf\"))\n",
+    "print(\"Found PDFs:\", pdfs)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "362a3f4a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pairs = load_all_pdfs_text(pdf_path.parent)\n",
+    "\n",
+    "if not pairs:\n",
+    "    raise FileNotFoundError(f\"No PDFs found in {pdf_path.parent.resolve()}\")\n",
+    "\n",
+    "pdf_path, raw_text = pairs[0]\n",
+    "print(\"✅ Loaded PDF:\", pdf_path)\n",
+    "print(\"\\n--- First 500 characters ---\\n\")\n",
+    "print(raw_text[:500])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "94b34f8a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "meta = extract_metadata(pdf_path)\n",
+    "print(\"✅ Extracted metadata:\\n\")\n",
+    "print(json.dumps(meta, indent=2))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8d136c41",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "txt = clean_text(raw_text)\n",
+    "chunks = chunk_text(txt, max_chars=1500, overlap=150)\n",
+    "\n",
+    "print(f\"✅ Total chunks: {len(chunks)}\")\n",
+    "print(\"\\n--- First 2 chunks ---\\n\")\n",
+    "for i, ch in enumerate(chunks[:2], 1):\n",
+    "    print(f\"Chunk {i}:\\n{ch[:300]}...\\n\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "01acc427",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "index = build_index([(f\"{pdf_path.stem} [chunk {i+1}]\", ch) for i, ch in enumerate(chunks)])\n",
+    "hits = search(index, \"What problem does this paper solve?\", k=3)\n",
+    "\n",
+    "print(\"✅ Top hits:\\n\")\n",
+    "for score, (lbl, text) in hits:\n",
+    "    print(f\"- {lbl} (score {score:.3f})\\n{text[:200]}...\\n\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6227665e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "top_chunks = [text for _s, (_lbl, text) in hits]\n",
+    "\n",
+    "summary = summarize_chunks(MISTRAL_API_KEY, \"Attention Is All You Need\", top_chunks)\n",
+    "analysis = analyze_chunks(MISTRAL_API_KEY, \"Attention Is All You Need\", top_chunks)\n",
+    "\n",
+    "print(\"✅ Summary preview:\\n\", summary[:500])\n",
+    "print(\"\\n---\\n\")\n",
+    "print(\"✅ Analysis preview:\\n\", analysis[:500])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b9488693",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "meta_out = {\n",
+    "    \"file\": pdf_path.name,\n",
+    "    \"title\": meta.get(\"title\", pdf_path.stem),\n",
+    "    \"authors\": meta.get(\"authors\", \"Unknown\"),\n",
+    "    \"abstract\": meta.get(\"abstract\"),\n",
+    "    \"query_used\": \"What problem does this paper solve?\",\n",
+    "    \"outputs\": {\n",
+    "        \"summary_preview\": summary[:200] + \"...\",\n",
+    "        \"analysis_preview\": analysis[:200] + \"...\"\n",
+    "    }\n",
+    "}\n",
+    "\n",
+    "print(\"✅ Metadata object:\\n\")\n",
+    "print(json.dumps(meta_out, indent=2))\n",
+    "\n",
+    "out_path = project_root / \"results/metadata/attention_is_all_you_need_demo_meta.json\"\n",
+    "out_path.parent.mkdir(parents=True, exist_ok=True)\n",
+    "out_path.write_text(json.dumps(meta_out, indent=2), encoding=\"utf-8\")\n",
+    "\n",
+    "print(\"✅ Saved to:\", out_path)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "name": "python",
+   "version": "3.10"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

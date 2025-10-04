@@ -15,6 +15,7 @@
 - [x] Save per-PDF metadata JSON (`results/metadata/`)
 - [x] Add prompt library (`prompts/`)
 - [x] Record `prompt_file` used in metadata JSON
+- [x] Add Jupyter notebooks (usage examples)
 
 ### In Progress
 - [ ] Add `--pdf` flag to target a single PDF file
@@ -61,6 +62,9 @@ This project is the **capstone project** and demonstrates the integration of:
 ## 📂 Project Structure
 
 research_gpt_assistant/
+├── notebooks/
+│   └── quickstart.ipynb     <-- NEW
+
 ├── data/
 │ └── sample_papers/ # Place your PDFs here
 ├── results/
