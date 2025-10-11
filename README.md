@@ -1,171 +1,263 @@
-## ✅ Capstone Progress Checklist
+An intelligent research assistant that reads academic PDFs, extracts metadata, summarizes them, and performs AI-based analysis of their methods, contributions, and limitations. This project represents an advanced stage of your AI/ML capstone, demonstrating integration of Python fundamentals, NLP, retrieval-based summarization, and automated research workflows.
 
-### Completed
-- [x] Create GitHub repo and initialize project
-- [x] Set up virtual environment (`uv venv .venv`)
-- [x] Install dependencies from `requirements.txt`
-- [x] Configure `.env` with `MISTRAL_API_KEY` and test connectivity
-- [x] Add sample paper (`attention_is_all_you_need.pdf`)
-- [x] Implement PDF text extraction and cleaning
-- [x] Implement chunking + TF-IDF index + retrieval
-- [x] Summarization pipeline (guided by query)
-- [x] Analysis pipeline (contributions, limitations, etc.)
-- [x] Save summaries (`results/summaries/`)
-- [x] Save analyses (`results/analyses/`)
-- [x] Save per-PDF metadata JSON (`results/metadata/`)
-- [x] Add prompt library (`prompts/`)
-- [x] Record `prompt_file` used in metadata JSON
-- [x] Add `--pdf` flag to target a single PDF file
-- [x] Add `--data-dir` flag to scan custom folders
+✅ Capstone Progress Checklist
+Completed
 
-### In Progress
-- [ ] Add Jupyter notebooks (usage examples)
+ Create GitHub repo and initialize project
 
-### Future Enhancements
-- [ ] Multi-PDF semantic search and cross-paper summaries
-- [ ] Richer metadata (citations, venues, year)
-- [ ] Export results to CSV/JSONL
-- [ ] Evaluation metrics (ROUGE, BLEU)
+ Set up virtual environment (uv venv .venv)
 
----
+ Install dependencies (requirements.txt)
 
-## 📖 Project Overview
+ Configure .env with MISTRAL_API_KEY and verify connectivity
 
-ResearchGPT Assistant is an intelligent research tool that leverages advanced AI techniques to help researchers process academic documents, generate insights, and automate research workflows.  
+ Add sample paper (attention_is_all_you_need.pdf)
 
-This project is the **capstone project** and demonstrates the integration of:
-- Python fundamentals  
-- NLP preprocessing  
-- Information retrieval  
-- AI summarization  
+ Implement PDF text extraction and cleaning
 
----
+ Implement chunking + TF-IDF index + retrieval
 
-## ✨ Features
+ Summarization pipeline (guided by custom query)
 
-### Core Capabilities
-- **Document Processing**: Extract and process text from PDF research papers.
-- **Intelligent Search**: TF-IDF based similarity search for relevant chunk retrieval.
-- **Summarization**: Generate concise summaries of papers guided by user query or custom prompt file.
-- **Analysis**: Deeper breakdowns of methodology, contributions, and limitations.
-- **Metadata Extraction**: Save paper metadata (title, authors, abstract) into structured JSON.
-- **Prompt Library**: Reusable prompt templates to control summarization style.
-- **Research Automation**: End-to-end workflow from PDF → cleaned text → summaries, analyses, and metadata.
+ Analysis pipeline (contributions, limitations, etc.)
 
-### Advanced Prompting Techniques
-- **Custom Prompt Steering**: Use external text files (e.g., “Summarize contributions”, “Explain like I’m 5”).
-- **Flexible Querying**: Override default queries with CLI arguments (`--query`).
-- **Chunked Processing**: Clean and split papers into overlapping text chunks for retrieval-based summarization.
+ Save summaries → results/summaries/
 
----
+ Save analyses → results/analyses/
 
-## 📂 Project Structure
+ Save per-paper metadata JSON → results/metadata/
 
-research_gpt_assistant/  
-├── notebooks/  
-│   └── quickstart.ipynb     <-- NEW  
-├── data/  
-│   └── sample_papers/       # Place your PDFs here  
-├── results/  
-│   ├── summaries/           # Generated summaries (.md)  
-│   ├── analyses/            # Generated analyses (.md)  
-│   └── metadata/            # Extracted metadata (.json)  
-├── prompts/                 # Optional prompt steering files  
-│   ├── summarize_contributions.txt  
-│   ├── summarize_limitations.txt  
-│   └── explain_like_im_5.txt  
-├── src/                     # Utility modules  
-│   ├── pdf_utils.py  
-│   ├── text_utils.py  
-│   ├── indexer.py  
-│   ├── summarizer.py  
-│   ├── analyst.py  
-│   ├── io_utils.py  
-│   └── metadata_utils.py  
-├── main.py                  # Entry point  
-├── requirements.txt  
-└── README.md  
+ Add prompt library → prompts/
 
----
+ Added fail-safe Mistral API retries + timeout flag
 
-## ⚙️ Setup Instructions
+ Added CLI flags for --pdf, --data-dir, --k, --query, and --timeout
 
-1. **Clone the repo**
-   git clone https://github.com/abe4x4/research-gpt-assistant.git
-   cd research-gpt-assistant
+ Created and tested Jupyter Quickstart notebook (notebooks/quickstart.ipynb)
 
-2. **Create a virtual environment with uv**
-   uv venv .venv
-   source .venv/bin/activate
+In Progress
 
-3. **Install dependencies**
-   uv pip install -r requirements.txt
+ Implement multi-file batch summarization reporting
 
-4. **Configure your API key**  
-   Add to `.env`:
-   MISTRAL_API_KEY=your_api_key_here
+ Add --prompt flag for external prompt templates
 
-   Reload into shell:
-   export $(grep -v '^#' .env | xargs)
+ Improve error messages for malformed PDFs
 
----
+Future Enhancements
 
-## ▶️ Usage Examples
+ Multi-PDF semantic search & cross-paper summaries
 
-### Default run (process all PDFs in data/sample_papers/)
+ Metadata enrichment (citations, venue, year)
+
+ Evaluation metrics (ROUGE, BLEU)
+
+ Export results to CSV or JSONL
+
+ Parallel PDF processing for speedup
+
+📖 Overview
+
+ResearchGPT Assistant automates the research paper review process:
+
+Loads and cleans research PDFs
+
+Extracts metadata (title, authors, abstract)
+
+Chunks the text into analyzable segments
+
+Runs retrieval-based summarization via Mistral API
+
+Performs analytical breakdowns (methods, contributions, limitations)
+
+Saves results (summaries, analyses, metadata)
+
+It combines Python + NLP preprocessing + AI summarization + automation for a robust capstone demonstration.
+
+✨ Features
+Core Capabilities
+
+Document Processing: Extracts text from academic PDFs.
+
+TF-IDF Search: Retrieves the most relevant chunks for a given query.
+
+AI Summarization: Generates context-rich summaries using Mistral models.
+
+AI Analysis: Evaluates contributions, methods, and limitations.
+
+Metadata Extraction: Extracts and saves structured metadata in JSON format.
+
+Prompt Library: Enables custom steering (e.g. “Explain Like I’m 5”, “Summarize Contributions”).
+
+Robust Networking: Automatic retries, clear logging, and user-settable timeouts.
+
+Advanced Prompting & Retrieval
+
+Custom Queries via --query
+
+Top-K Chunk Retrieval via --k
+
+Automatic Retry Logic with --timeout
+
+Fail-fast Checks if MISTRAL_API_KEY is missing
+
+End-to-end Automation from PDF → Text → Summary → Analysis → Metadata
+
+📂 Project Structure
+
+research_gpt_assistant/
+├── data/
+│ └── sample_papers/
+│ └── attention_is_all_you_need.pdf
+│
+├── results/
+│ ├── summaries/ # Markdown summaries
+│ ├── analyses/ # Analytical breakdowns
+│ └── metadata/ # JSON metadata outputs
+│
+├── prompts/ # Prompt steering library
+│ ├── summarize_contributions.txt
+│ ├── summarize_limitations.txt
+│ └── explain_like_im_5.txt
+│
+├── notebooks/
+│ └── quickstart.ipynb # Interactive demo notebook
+│
+├── src/ # Modular backend code
+│ ├── pdf_utils.py
+│ ├── text_utils.py
+│ ├── indexer.py
+│ ├── summarizer.py
+│ ├── analyst.py
+│ ├── io_utils.py
+│ └── metadata_utils.py
+│
+├── main.py # CLI entry point (current version)
+├── requirements.txt
+└── README.md
+
+⚙️ Setup Instructions
+1. Clone the repository
+
+git clone https://github.com/abe4x4/research-gpt-assistant.git
+
+cd research-gpt-assistant
+
+2. Create and activate the virtual environment
+
+uv venv .venv
+source .venv/bin/activate
+
+3. Install dependencies
+
+uv pip install -r requirements.txt
+
+4. Configure the Mistral API key
+
+Create a .env file in the project root:
+
+MISTRAL_API_KEY=your_api_key_here
+
+Reload into your shell:
+export $(grep -v '^#' .env | xargs)
+
+5. (Optional) Test API connectivity
+
+python - <<'PY'
+import os, requests
+key = os.getenv("MISTRAL_API_KEY")
+resp = requests.get("https://api.mistral.ai/v1/models
+", headers={"Authorization": f"Bearer {key}"})
+print(resp.status_code, resp.text[:200])
+PY
+
+Expected output:
+200 {...list of available models...}
+
+▶️ CLI Usage Examples
+Default (process all PDFs in data/sample_papers)
+
 python main.py
 
-### Custom query & top-k retrieval
-python main.py --k 8 --query "Summarize contributions and limitations."
+Process a single paper
 
-### Use a custom prompt file
-python main.py --k 8 \
-  --query "Summarize contributions only." \
-  --prompt prompts/summarize_contributions.txt
-
-### Process a specific PDF only
 python main.py --pdf data/sample_papers/attention_is_all_you_need.pdf
 
-### Process all PDFs in a custom folder
+Custom query and top-k retrieval
+
+python main.py --k 8 --query "Summarize contributions and limitations."
+
+Custom timeout (e.g. 30 seconds per API call)
+
+python main.py --pdf data/sample_papers/attention_is_all_you_need.pdf --timeout 30
+
+Custom data directory
+
 python main.py --data-dir /path/to/your/pdfs
 
-### Check outputs
-- Summaries → results/summaries/
-- Analyses → results/analyses/
-- Metadata → results/metadata/
+📊 Example Outputs
+Metadata JSON
 
----
+results/metadata/attention_is_all_you_need_meta.json
 
-## 📊 Example Output
-
-**Metadata JSON (results/metadata/attention_is_all_you_need_meta.json):**
 {
-  "file": "attention_is_all_you_need.pdf",
-  "pdf_path": "data/sample_papers/attention_is_all_you_need.pdf",
-  "title": "Attention Is All You Need",
-  "authors": "Unknown",
-  "abstract": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks...",
-  "query_used": "Summarize contributions and limitations.",
-  "prompt_file": "prompts/summarize_contributions.txt",
-  "outputs": {
-    "summary_md": "results/summaries/attention_is_all_you_need_summary.md",
-    "analysis_md": "results/analyses/attention_is_all_you_need_analysis.md"
-  }
+"file": "attention_is_all_you_need.pdf",
+"pdf_path": "data/sample_papers/attention_is_all_you_need.pdf",
+"title": "Attention Is All You Need",
+"authors": "Unknown",
+"abstract": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks...",
+"query_used": "Summarize contributions and limitations.",
+"timeout": 45,
+"outputs": {
+"summary_md": "results/summaries/attention_is_all_you_need_summary.md",
+"analysis_md": "results/analyses/attention_is_all_you_need_analysis.md"
+}
 }
 
----
+🧩 Prompt Library
+Prompt File	Description
+summarize_contributions.txt	Focuses on novel ideas and core contributions
+summarize_limitations.txt	Extracts limitations, assumptions, weaknesses
+explain_like_im_5.txt	Simplifies technical content into plain language
 
-## 📚 Prompt Library
+You can add your own .txt prompt templates to extend the system.
 
-Examples of included prompt files:
-- **summarize_contributions.txt**: Focus only on novel contributions.  
-- **summarize_limitations.txt**: Highlight weaknesses, assumptions, and limitations.  
-- **explain_like_im_5.txt**: Explain the paper in simple terms.  
+🧠 Notebook: quickstart.ipynb
 
-Add your own `.txt` files inside `prompts/` to extend the library.
+An interactive demonstration notebook that:
 
----
+Loads sample papers
 
-## ✍️ Author
+Shows metadata extraction
 
-Built by Ibrahim Abouzeid (@abe4x4) as a capstone project for mastering Python, NLP, and AI-assisted research workflows.
+Displays first text chunks
+
+Runs summarization and analysis
+
+Shows resulting JSON output
+
+Run it inside VS Code or JupyterLab for an educational walkthrough of the entire pipeline.
+
+🧾 Logging & Error Handling
+
+Auto Retries: Network errors automatically retry up to 3 times.
+
+Timeouts: Each API call respects the user-set timeout (--timeout).
+
+Fail-Fast: If MISTRAL_API_KEY is missing or invalid, execution stops immediately.
+
+Progress Feedback: Console shows clear messages for each operation:
+🧠 Summarizing...
+🔍 Analyzing...
+✅ Summary saved → results/summaries/...
+✅ Analysis saved → results/analyses/...
+
+✍️ Author
+
+Ibrahim Abouzeid (@abe4x4)
+Blockchain Developer • AI Research Engineer • Code:You Capstone Participant
+Built as a guided exploration of AI, NLP, and automation best practices.
+
+🧭 License
+
+MIT License © 2025 Ibrahim Abouzeid
+You are free to use, modify, and distribute with attribution.
