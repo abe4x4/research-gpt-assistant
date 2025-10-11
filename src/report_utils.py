@@ -1,115 +1,39 @@
 """
-report_utils.py
-----------------
-Utility functions for batch processing reports in ResearchGPT Assistant.
-
-This module provides:
-✅ Timing wrappers to measure execution time per PDF
-✅ CSV writing helpers to record results in `results/batch_report.csv`
-✅ Safe directory creation for report outputs
-
-Author: Ibrahim Abouzeid (@abe4x4)
+report_utils.py — handles batch run reporting (CSV logs)
+--------------------------------------------------------
+Creates and appends to a CSV report summarizing each processed PDF.
 """
 
 import csv
-import time
 from pathlib import Path
 from datetime import datetime
 
+REPORT_PATH = Path("results/batch_report.csv")
 
-def ensure_dir_exists(path: Path) -> None:
+def append_report_row(pdf_path, query, summary_path, analysis_path, duration):
     """
-    Create the directory if it does not exist.
+    Append one processed file's results to a CSV report.
+    Creates the file with a header if it doesn't exist.
     """
-    path.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    file_exists = REPORT_PATH.exists()
 
-
-def start_timer() -> float:
-    """
-    Returns the current timestamp for timing operations.
-    """
-    return time.time()
-
-
-def stop_timer(start: float) -> float:
-    """
-    Calculates elapsed time since `start`.
-    """
-    return round(time.time() - start, 2)
-
-
-def init_batch_report(csv_path: Path) -> None:
-    """
-    Create or overwrite the batch report CSV file with headers.
-    """
-    ensure_dir_exists(csv_path.parent)
-    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+    with REPORT_PATH.open("a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow([
+                "timestamp",
+                "file",
+                "query_used",
+                "summary_path",
+                "analysis_path",
+                "duration_sec"
+            ])
         writer.writerow([
-            "Timestamp",
-            "File Name",
-            "Title",
-            "Query Used",
-            "Summary File",
-            "Analysis File",
-            "Summary Word Count",
-            "Analysis Word Count",
-            "Duration (s)"
+            datetime.now().isoformat(timespec="seconds"),
+            pdf_path.name,
+            query,
+            str(summary_path),
+            str(analysis_path),
+            round(duration, 2)
         ])
-
-
-def append_batch_record(csv_path: Path, record: dict) -> None:
-    """
-    Append a single record (dict) to the batch report CSV.
-    """
-    ensure_dir_exists(csv_path.parent)
-    with open(csv_path, "a", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            record.get("file_name", ""),
-            record.get("title", ""),
-            record.get("query_used", ""),
-            record.get("summary_file", ""),
-            record.get("analysis_file", ""),
-            record.get("summary_words", ""),
-            record.get("analysis_words", ""),
-            record.get("duration", "")
-        ])
-
-
-def word_count_from_file(path: Path) -> int:
-    """
-    Counts number of words in a text or markdown file.
-    Returns 0 if file not found.
-    """
-    try:
-        text = path.read_text(encoding="utf-8")
-        return len(text.split())
-    except FileNotFoundError:
-        return 0
-
-
-def record_pdf_summary(
-    csv_path: Path,
-    pdf_path: Path,
-    title: str,
-    query: str,
-    summary_path: Path,
-    analysis_path: Path,
-    duration: float
-) -> None:
-    """
-    High-level helper to gather metadata and append to batch report.
-    """
-    record = {
-        "file_name": pdf_path.name,
-        "title": title,
-        "query_used": query,
-        "summary_file": str(summary_path),
-        "analysis_file": str(analysis_path),
-        "summary_words": word_count_from_file(summary_path),
-        "analysis_words": word_count_from_file(analysis_path),
-        "duration": duration
-    }
-    append_batch_record(csv_path, record)

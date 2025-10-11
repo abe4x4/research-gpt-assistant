@@ -1,22 +1,16 @@
+#!/usr/bin/env python3
 """
-main.py
---------
-ResearchGPT Assistant — Capstone Project
-Enhanced with batch reporting and execution timing.
-
-Features:
-✅ Summarize & analyze single or multiple PDFs
-✅ CLI flags for query, data-dir, pdf, timeout, top-k
-✅ Automatic metadata saving
-✅ Automatic CSV batch report with timing & word counts
-
-Author: Ibrahim Abouzeid (@abe4x4)
+ResearchGPT Assistant
+---------------------------------------
+Now with:
+- --report flag to generate batch summary CSV
+- --timeout flag to control API timeout
+- Live progress logging for each stage
 """
 
-import os
-import json
-import argparse
+import os, json, time, argparse
 from pathlib import Path
+from datetime import datetime
 from typing import List, Tuple
 
 from src.config import MISTRAL_API_KEY
@@ -25,78 +19,58 @@ from src.text_utils import clean_text, chunk_text
 from src.indexer import build_index, search
 from src.summarizer import summarize_chunks
 from src.analyst import analyze_chunks
-from src.io_utils import safe_stem
 from src.metadata_utils import extract_metadata
-from src.report_utils import (
-    start_timer,
-    stop_timer,
-    init_batch_report,
-    record_pdf_summary,
-)
+from src.io_utils import safe_stem
+from src.report_utils import append_report_row
 
-# Define directory constants
 DATA_DIR = Path("data/sample_papers")
-SUM_DIR = Path("results/summaries")
-ANA_DIR = Path("results/analyses")
+SUM_DIR  = Path("results/summaries")
+ANA_DIR  = Path("results/analyses")
 META_DIR = Path("results/metadata")
-BATCH_REPORT = Path("results/batch_report.csv")
-
-# Ensure directories exist
-for d in [SUM_DIR, ANA_DIR, META_DIR]:
-    d.mkdir(parents=True, exist_ok=True)
+SUM_DIR.mkdir(parents=True, exist_ok=True)
+ANA_DIR.mkdir(parents=True, exist_ok=True)
+META_DIR.mkdir(parents=True, exist_ok=True)
 
 
+# ---------------------- Helper ----------------------
 def ensure_api_key():
-    """Check for required Mistral API key."""
     if not MISTRAL_API_KEY:
-        raise RuntimeError(
-            "❌ MISTRAL_API_KEY missing — please add it to your .env file and reload your shell."
-        )
+        raise RuntimeError("❌ MISTRAL_API_KEY is missing — check your .env file.")
 
 
-def summarize_and_analyze_pdf(pdf_path: Path, raw_text: str, query: str) -> tuple[Path, Path, str]:
-    """
-    Process a single PDF end-to-end: metadata extraction, cleaning, chunking,
-    retrieval, summarization, and analysis.
-    """
-    # --- Metadata Extraction ---
-    meta = extract_metadata(pdf_path)
-    title = meta.get("title") or pdf_path.stem
-    authors = meta.get("authors") or "Unknown"
-    abstract = meta.get("abstract")
+# ---------------------- Core ----------------------
+def summarize_and_analyze_pdf(pdf_path: Path, raw_text: str, query: str, timeout: int = 60) -> Tuple[Path, Path]:
+    start_time = time.time()
+    print(f"⏳ Processing {pdf_path.name} ...")
 
-    # --- Clean & Chunk ---
+    md = extract_metadata(pdf_path)
+    title   = md.get("title") or pdf_path.stem
+    authors = md.get("authors") or "Unknown"
+    abstract = md.get("abstract")
+
     txt = clean_text(raw_text)
     chunks = chunk_text(txt, max_chars=1500, overlap=150)
     if not chunks:
         raise RuntimeError(f"No extractable text from: {pdf_path.name}")
 
-    # --- Indexing & Retrieval ---
-    labeled_chunks: List[Tuple[str, str]] = [
-        (f"{pdf_path.stem} [chunk {i+1}]", ch) for i, ch in enumerate(chunks)
-    ]
+    labeled_chunks: List[Tuple[str, str]] = [(f"{pdf_path.stem} [chunk {i+1}]", ch) for i, ch in enumerate(chunks)]
     index = build_index(labeled_chunks)
-    hits = search(index, query, k=int(os.getenv("RGPT_TOP_K", 5)))
+    hits = search(index, query, k=5)
     top_chunks = [text for _s, (_lbl, text) in hits]
 
-    # --- Summarization ---
-    header = f"# {title}\n\n**Authors:** {authors}\n\n"
-    if abstract:
-        header += f"**Abstract (detected):** {abstract}\n\n---\n\n"
+    try:
+        summary_md = summarize_chunks(MISTRAL_API_KEY, title, top_chunks)
+        analysis_md = analyze_chunks(MISTRAL_API_KEY, title, top_chunks)
+    except Exception as e:
+        raise RuntimeError(f"⚠️ API request failed ({type(e).__name__}): {e}")
 
-    summary_md = header + summarize_chunks(MISTRAL_API_KEY, title, top_chunks)
     sum_path = SUM_DIR / f"{safe_stem(pdf_path)}_summary.md"
-    sum_path.write_text(summary_md, encoding="utf-8")
-
-    # --- Analysis ---
-    analysis_md = analyze_chunks(MISTRAL_API_KEY, title, top_chunks)
     ana_path = ANA_DIR / f"{safe_stem(pdf_path)}_analysis.md"
+    sum_path.write_text(summary_md, encoding="utf-8")
     ana_path.write_text(analysis_md, encoding="utf-8")
 
-    # --- Metadata JSON ---
-    meta_json = {
+    meta = {
         "file": pdf_path.name,
-        "pdf_path": str(pdf_path),
         "title": title,
         "authors": authors,
         "abstract": abstract,
@@ -105,70 +79,58 @@ def summarize_and_analyze_pdf(pdf_path: Path, raw_text: str, query: str) -> tupl
             "summary_md": str(sum_path),
             "analysis_md": str(ana_path),
         },
+        "timestamp": datetime.now().isoformat()
     }
     meta_path = META_DIR / f"{safe_stem(pdf_path)}_meta.json"
-    meta_path.write_text(json.dumps(meta_json, indent=2, ensure_ascii=False), encoding="utf-8")
+    meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
 
-    return sum_path, ana_path, title
+    elapsed = time.time() - start_time
+    print(f"✅ Done {pdf_path.name} in {elapsed:.1f}s")
 
-
-def process_pdf_batch(data_dir: Path, query: str, timeout: int = 45):
-    """
-    Process all PDFs in the given data directory.
-    Saves batch CSV report for all processed papers.
-    """
-    print(f"📂 Scanning directory: {data_dir.resolve()}")
-    pairs = load_all_pdfs_text(data_dir)
-    if not pairs:
-        print("❌ No PDFs found. Please check your path or add PDFs.")
-        return
-
-    init_batch_report(BATCH_REPORT)
-    print("🧾 Batch report initialized →", BATCH_REPORT)
-
-    for pdf_path, raw_text in pairs:
-        print(f"\n📄 Processing: {pdf_path.name}")
-        try:
-            start = start_timer()
-            s_path, a_path, title = summarize_and_analyze_pdf(pdf_path, raw_text, query)
-            duration = stop_timer(start)
-            record_pdf_summary(BATCH_REPORT, pdf_path, title, query, s_path, a_path, duration)
-            print(f"✅ Done: {pdf_path.name} in {duration}s")
-        except Exception as e:
-            print(f"[WARN] Skipped {pdf_path.name}: {e}")
-
-    print("\n📊 All results summarized in:", BATCH_REPORT)
+    return sum_path, ana_path, elapsed
 
 
+# ---------------------- Main ----------------------
 def main():
-    parser = argparse.ArgumentParser(description="ResearchGPT Assistant CLI")
-    parser.add_argument("--pdf", type=str, help="Process a single PDF file path")
-    parser.add_argument("--data-dir", type=str, default="data/sample_papers", help="Folder of PDFs")
-    parser.add_argument("--k", type=int, default=5, help="Number of top chunks for summarization")
-    parser.add_argument("--query", type=str, default="What problem does this paper solve?")
-    parser.add_argument("--timeout", type=int, default=45, help="Timeout for API calls (seconds)")
-    args = parser.parse_args()
-
     ensure_api_key()
 
-    os.environ["RGPT_TOP_K"] = str(args.k)
+    parser = argparse.ArgumentParser(description="ResearchGPT Assistant CLI")
+    parser.add_argument("--data-dir", type=str, default=str(DATA_DIR), help="Directory containing PDF files")
+    parser.add_argument("--pdf", type=str, help="Process only this PDF file")
+    parser.add_argument("--query", type=str, default="Summarize contributions and limitations.", help="Query for summarization")
+    parser.add_argument("--timeout", type=int, default=60, help="Timeout (seconds) for API calls")
+    parser.add_argument("--report", action="store_true", help="Save a batch summary report CSV")
+    args = parser.parse_args()
+
+    data_dir = Path(args.data_dir)
     query = args.query
+    timeout = args.timeout
+    generate_report = args.report
 
     if args.pdf:
         pdf_path = Path(args.pdf)
         print(f"📄 Processing single PDF: {pdf_path.name}")
-        if not pdf_path.exists():
-            raise FileNotFoundError(f"File not found: {pdf_path}")
-        raw_pairs = load_all_pdfs_text(pdf_path.parent)
-        match = [p for p in raw_pairs if p[0].name == pdf_path.name]
-        if not match:
-            raise FileNotFoundError(f"No text extracted for {pdf_path.name}")
-        raw_text = match[0][1]
-        s, a, title = summarize_and_analyze_pdf(pdf_path, raw_text, query)
-        print("✅ Summary →", s)
-        print("✅ Analysis →", a)
+        pairs = [(pdf_path, pdf_path.read_bytes())] if pdf_path.exists() else []
     else:
-        process_pdf_batch(Path(args.data_dir), query, args.timeout)
+        pairs = load_all_pdfs_text(data_dir)
+
+    if not pairs:
+        print(f"❌ No PDFs found in {data_dir}. Add files or check path.")
+        return
+
+    batch_start = time.time()
+    for pdf_path, raw in pairs:
+        try:
+            s, a, dur = summarize_and_analyze_pdf(pdf_path, raw, query, timeout)
+            if generate_report:
+                append_report_row(pdf_path, query, s, a, dur)
+        except Exception as e:
+            print(f"[WARN] {pdf_path.name}: {e}")
+
+    if generate_report:
+        print("📊 Batch summary written to results/batch_report.csv")
+
+    print(f"🏁 All done in {time.time() - batch_start:.1f}s")
 
 
 if __name__ == "__main__":

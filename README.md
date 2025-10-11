@@ -3,79 +3,84 @@
 ## ✅ Capstone Progress Checklist
 
 ### Completed
-- [x] Create GitHub repo and initialize project  
-- [x] Set up virtual environment (`uv venv .venv`)  
-- [x] Install dependencies from `requirements.txt`  
-- [x] Configure `.env` with `MISTRAL_API_KEY` and test connectivity  
-- [x] Add sample paper (`attention_is_all_you_need.pdf`)  
-- [x] Implement PDF text extraction and cleaning  
-- [x] Implement chunking + TF-IDF index + retrieval  
-- [x] Summarization pipeline (guided by query)  
-- [x] Analysis pipeline (contributions, limitations, etc.)  
-- [x] Save summaries (`results/summaries/`)  
-- [x] Save analyses (`results/analyses/`)  
-- [x] Save per-PDF metadata JSON (`results/metadata/`)  
-- [x] Add prompt library (`prompts/`)  
-- [x] Record `prompt_file` used in metadata JSON  
-- [x] Add batch report logging (CSV with timing + word counts)  
-- [x] Add CLI flags for `--pdf`, `--data-dir`, and `--timeout`
+- [x] Create GitHub repo and initialize project
+- [x] Set up virtual environment (`uv venv .venv`)
+- [x] Install dependencies from `requirements.txt`
+- [x] Configure `.env` with `MISTRAL_API_KEY` and test connectivity
+- [x] Add sample paper (`attention_is_all_you_need.pdf`)
+- [x] Implement PDF text extraction and cleaning
+- [x] Implement chunking + TF-IDF index + retrieval
+- [x] Summarization pipeline (guided by query)
+- [x] Analysis pipeline (contributions, limitations, etc.)
+- [x] Save summaries (`results/summaries/`)
+- [x] Save analyses (`results/analyses/`)
+- [x] Save per-PDF metadata JSON (`results/metadata/`)
+- [x] Add prompt library (`prompts/`)
+- [x] Record `prompt_file` used in metadata JSON
+- [x] Add `--timeout` flag for API stability
+- [x] Add CSV batch reporting (`--report`)
+- [x] Add Jupyter Notebook dashboard (Quickstart demo)
 
 ### In Progress
-- [ ] Implement retry logic for unstable network connections  
-- [ ] Add option to export all results to a single combined Markdown report  
+- [ ] Add `--pdf` flag to target a single file (enhanced)
+- [ ] Add `--data-dir` flag for custom folders (batch mode improvements)
 
 ### Future Enhancements
-- [ ] Multi-PDF semantic search and cross-paper summaries  
-- [ ] Richer metadata (citations, venues, year)  
-- [ ] Evaluation metrics (ROUGE, BLEU)  
+- [ ] Multi-PDF semantic search and cross-paper summaries
+- [ ] Richer metadata (citations, year, venue)
+- [ ] Export results to CSV/JSONL with summary stats
+- [ ] Evaluation metrics (ROUGE, BLEU, cosine similarity)
 
 ---
 
 ## 📖 Project Overview
 
-**ResearchGPT Assistant** is an intelligent research automation tool designed to process academic papers, generate structured summaries and analyses, and organize all results automatically — ideal for students, researchers, and AI developers.
+ResearchGPT Assistant is an intelligent research automation tool that processes academic papers, extracts key insights, and produces structured summaries and analyses — all powered by the Mistral API and modern NLP techniques.
 
-It demonstrates:
-- **Python fundamentals**  
-- **NLP preprocessing and vector search**  
-- **LLM-powered summarization**  
-- **Structured data export and reporting**
+This capstone project demonstrates:
+- Python fundamentals  
+- NLP preprocessing  
+- Information retrieval (TF-IDF search)  
+- LLM-powered summarization and analysis  
+- Structured metadata and CSV reporting
 
 ---
 
 ## ✨ Features
 
 ### Core Capabilities
-- 🧩 **Document Processing:** Extract and process text from PDFs using PyMuPDF.  
-- 🧠 **Intelligent Search:** TF-IDF similarity search retrieves most relevant text chunks.  
-- 🗒 **Summarization:** Auto-generates summaries guided by a query or prompt file.  
-- 🔍 **Analysis:** Produces deeper insights into methodology, contributions, and limitations.  
-- 🧾 **Metadata Extraction:** Extracts title, authors, and abstract from PDFs into JSON.  
-- 🧮 **Batch CSV Report:** Logs each processed paper with duration and word counts.  
-- 🗂 **Prompt Library:** Flexible text prompts (contributions, limitations, ELI5, etc.).  
+- Document Processing: Extract and clean text from PDFs  
+- Chunking & Indexing: Split documents into searchable text chunks using TF-IDF retrieval  
+- Summarization: Generate concise paper summaries guided by user queries or prompt files  
+- Analysis: Deep breakdown of contributions, methods, and limitations  
+- Metadata Extraction: Structured output (title, authors, abstract) in JSON format  
+- Prompt Library: Reusable prompt templates in `/prompts`  
+- Batch Reporting: Optional CSV summary of all runs  
+- Timeout Handling: Safe API execution with user-defined timeout
+
+### Advanced Prompting
+- Use text files like `prompts/summarize_contributions.txt` or `prompts/explain_like_im_5.txt`  
+- Control summary style directly from the CLI  
+- Combine with custom queries for precise control
 
 ---
 
-## 🧱 Project Structure
+## 📂 Project Structure
 
 research_gpt_assistant/
 ├── notebooks/
-│   └── quickstart.ipynb             # Interactive demo
-│
+│   └── quickstart.ipynb        ← Interactive demo notebook
 ├── data/
-│   └── sample_papers/               # Place PDFs here
-│
+│   └── sample_papers/          ← Place your PDFs here
 ├── results/
-│   ├── summaries/                   # Generated summaries (.md)
-│   ├── analyses/                    # Generated analyses (.md)
-│   ├── metadata/                    # Extracted metadata (.json)
-│   └── batch_report.csv             # NEW: CSV summary report
-│
-├── prompts/                         # Custom prompt templates
+│   ├── summaries/              ← Generated summaries (.md)
+│   ├── analyses/               ← Generated analyses (.md)
+│   ├── metadata/               ← Per-PDF metadata (.json)
+│   └── batch_report.csv        ← Optional batch summary (CSV)
+├── prompts/
 │   ├── summarize_contributions.txt
 │   ├── summarize_limitations.txt
 │   └── explain_like_im_5.txt
-│
 ├── src/
 │   ├── pdf_utils.py
 │   ├── text_utils.py
@@ -84,9 +89,8 @@ research_gpt_assistant/
 │   ├── analyst.py
 │   ├── io_utils.py
 │   ├── metadata_utils.py
-│   └── report_utils.py              # NEW: timing + CSV helpers
-│
-├── main.py                          # Entry point (CLI)
+│   └── report_utils.py         ← NEW: CSV report utilities
+├── main.py                     ← Main entry point
 ├── requirements.txt
 └── README.md
 
@@ -94,74 +98,59 @@ research_gpt_assistant/
 
 ## ⚙️ Setup Instructions
 
-### 1️⃣ Clone the Repo
-git clone https://github.com/abe4x4/research-gpt-assistant.git
+1️⃣ Clone the Repository  
+git clone https://github.com/abe4x4/research-gpt-assistant.git  
 cd research-gpt-assistant
 
-### 2️⃣ Create and Activate Virtual Environment
-uv venv .venv
+2️⃣ Create and Activate Virtual Environment  
+uv venv .venv  
 source .venv/bin/activate
 
-### 3️⃣ Install Dependencies
+3️⃣ Install Dependencies  
 uv pip install -r requirements.txt
 
-### 4️⃣ Configure `.env` with Mistral API Key
-Create a `.env` file in the project root:
-MISTRAL_API_KEY=your_api_key_here
+4️⃣ Configure API Key  
+Create a `.env` file in the project root:  
+MISTRAL_API_KEY=your_api_key_here  
 
-Load it into your environment:
+Load it into your shell:  
 export $(grep -v '^#' .env | xargs)
+
+Test Connectivity:  
+python - <<'PY'
+import os, requests
+key = os.getenv("MISTRAL_API_KEY")
+resp = requests.get("https://api.mistral.ai/v1/models", headers={"Authorization": f"Bearer {key}"})
+print(resp.status_code, resp.text[:200])
+PY
 
 ---
 
 ## ▶️ Usage Examples
 
-### ✅ Default Run — Process All PDFs
-python main.py
+Process All PDFs (Default):  
+python main.py  
 
-### 🧩 Specify Data Folder
-python main.py --data-dir data/sample_papers
-
-### 📄 Single PDF Processing
-python main.py --pdf data/sample_papers/attention_is_all_you_need.pdf
-
-### 🧠 Custom Query
+Custom Query and Top-K Retrieval:  
 python main.py --k 8 --query "Summarize contributions and limitations."
 
-### ⏱ Timeout Control (default 45s)
-python main.py --timeout 60
+Process a Single PDF:  
+python main.py --pdf data/sample_papers/attention_is_all_you_need.pdf  
 
----
+Add Timeout (in seconds):  
+python main.py --timeout 120  
 
-## 📊 New Feature — Batch Report CSV
+Generate CSV Batch Report:  
+python main.py --data-dir data/sample_papers --report  
 
-Every batch run now creates:
+Output File:  
 results/batch_report.csv
 
-Each row contains:
-Timestamp | File Name | Title | Query | Summary File | Analysis File | Summary Words | Analysis Words | Duration (s)
-
-Example:
-2025-10-11 14:20:55,attention_is_all_you_need.pdf,Attention Is All You Need,What problem does this paper solve?,results/summaries/attention_is_all_you_need_summary.md,results/analyses/attention_is_all_you_need_analysis.md,412,367,11.92
-
 ---
 
-## 📚 Prompt Library
+## 📊 Example Output
 
-Each `.txt` file in `/prompts/` can steer summarization:
-- summarize_contributions.txt → Focus on novel findings  
-- summarize_limitations.txt → Highlight weaknesses  
-- explain_like_im_5.txt → Simplify technical concepts  
-
-To use one:
-python main.py --query "Summarize contributions only." \
-  --prompt prompts/summarize_contributions.txt
-
----
-
-## 🧠 Example Output
-
-### JSON Metadata (results/metadata/attention_is_all_you_need_meta.json)
+Metadata JSON (results/metadata/attention_is_all_you_need_meta.json):  
 {
   "file": "attention_is_all_you_need.pdf",
   "pdf_path": "data/sample_papers/attention_is_all_you_need.pdf",
@@ -177,29 +166,64 @@ python main.py --query "Summarize contributions only." \
 
 ---
 
-## 🧩 Troubleshooting
+## 📗 Quickstart Notebook Demo
 
-Q: Server disconnected without sending a response  
-→ Check internet connection or reduce concurrency.
+Open `notebooks/quickstart.ipynb` to visualize your full workflow interactively.
 
-Q: MISTRAL_API_KEY missing  
-→ Run `source .venv/bin/activate` then `export $(grep -v '^#' .env | xargs)` again.
+Steps:
+1. Load a sample PDF  
+2. Extract metadata and clean text  
+3. Chunk and index content  
+4. Run summarization and analysis  
+5. Generate metadata JSON  
+6. View CSV report dashboard  
+7. Review summary insights cell  
 
-Q: No PDFs found  
-→ Ensure your `.pdf` files are inside `data/sample_papers/`.
+Example Output:
+✅ Batch Report Loaded Successfully!
+
+📊 Summary Insights:
+Total PDFs processed: 1  
+Average runtime: 11.46 seconds  
+Fastest run: 11.46 seconds  
+Slowest run: 11.46 seconds
+
+---
+
+## 📚 Prompt Library
+
+- summarize_contributions.txt → Focus on novel contributions  
+- summarize_limitations.txt → Highlight weaknesses and limitations  
+- explain_like_im_5.txt → Explain in simple terms  
+
+You can create your own `.txt` prompts in the `/prompts` folder and reference them via CLI.
+
+---
+
+## 🧾 CSV Report Fields
+
+| Column | Description |
+|--------|--------------|
+| Timestamp | Run time (ISO format) |
+| File Name | PDF processed |
+| Title | Extracted title |
+| Query Used | User query |
+| Summary File / Analysis File | Output paths |
+| Word Counts | Approximate word count |
+| Duration (s) | Total processing time |
 
 ---
 
 ## ✍️ Author
-Ibrahim Abouzeid (@abe4x4)  
-Blockchain & AI Developer | Neurophysiologist | Python Engineer  
-Capstone Project — Code:You AI & Python Program
+
+Built by Ibrahim Abouzeid (@abe4x4)  
+Capstone project demonstrating Python, NLP, and AI-assisted research automation.
 
 ---
 
-## 📅 Version History
-Date | Version | Notes
------|----------|-------
-2025-10-02 | 1.0 | Initial release
-2025-10-07 | 1.1 | Added Notebook + Metadata export
-2025-10-11 | 1.2 | Added Batch CSV + Timeout flags + README upgrade
+## 🏁 Final Notes
+
+✔️ Full summarization and analysis pipeline  
+✔️ Batch CSV reporting and dashboard visualization  
+✔️ Ready for grading and extension  
+✔️ Compatible with any academic PDF using TF-IDF + Mistral API
