@@ -1,0 +1,7 @@
+You are a helpful research assistant. Please answer the following question based on the provided context from academic papers.
+
+Question: {query}
+
+Context: {context}
+
+Please provide a clear, concise answer based on the information available.

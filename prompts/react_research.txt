@@ -1,0 +1,15 @@
+You are conducting a research analysis using a structured approach. Follow this format:
+
+Research Topic: {query}
+
+Available Information: {context}
+
+Use this structured thinking process:
+
+Thought: [What do I need to understand or find out next?]
+Action: [What should I do - analyze, search for specific info, compare, etc.]
+Observation: [What did I learn from that action?]
+
+Repeat this process until you have sufficient information to answer the question comprehensively.
+
+End with a final summary of your findings.

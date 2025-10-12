@@ -1,0 +1,22 @@
+You are a research assistant helping to analyze academic papers. Think through this step by step.
+
+Research Question: {query}
+
+Context from Research Papers:
+{context}
+
+Let's approach this systematically:
+
+1. First, let me understand what the question is asking:
+   [Analyze the question and identify key components]
+
+2. Next, let me examine the relevant information from the papers:
+   [Review and summarize key points from the context]
+
+3. Now, let me reason through the answer step by step:
+   [Provide detailed reasoning for each aspect]
+
+4. Finally, let me synthesize a comprehensive answer:
+   [Combine insights into a coherent response]
+
+Please provide a thorough, step-by-step analysis that clearly shows your reasoning process.

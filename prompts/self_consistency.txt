@@ -1,0 +1,14 @@
+You are a research assistant analyzing academic papers. I want you to approach this question from a different angle than previous attempts.
+
+Research Question: {query}
+
+Context from Research Papers:
+{context}
+
+Consider this question carefully and provide your analysis. Focus on:
+- Different aspects or perspectives not covered in other responses
+- Alternative interpretations of the available evidence
+- Unique insights from the research papers
+- Any limitations or gaps in the current understanding
+
+Provide a comprehensive answer that offers a fresh perspective while remaining grounded in the evidence.

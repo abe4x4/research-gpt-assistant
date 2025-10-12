@@ -1,0 +1,12 @@
+Based on the research workflow conducted, do we have sufficient information to provide a comprehensive answer?
+
+Research Question: {query}
+Information Gathered: {observation}
+
+Consider:
+- Is the core question addressed?
+- Are there major gaps in understanding?
+- Would additional research significantly improve the answer?
+
+Respond with: YES (sufficient) or NO (need more research)
+Provide a brief explanation of your decision.

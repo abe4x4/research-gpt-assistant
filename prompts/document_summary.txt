@@ -1,0 +1,14 @@
+You are an expert research assistant. Please provide a comprehensive summary of this document.
+
+Document Content: {content}
+
+Your summary should include:
+
+1. **Main Research Question/Objective**: What is the paper trying to achieve?
+2. **Methodology**: How did the researchers approach the problem?
+3. **Key Findings**: What are the most important results or discoveries?
+4. **Conclusions**: What do the authors conclude from their work?
+5. **Limitations**: What limitations does the study have?
+6. **Significance**: Why is this research important?
+
+Please structure your response clearly and focus on the most important aspects.

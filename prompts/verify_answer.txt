@@ -1,0 +1,22 @@
+You are a research quality assessor. Please evaluate the following answer for accuracy and completeness.
+
+Original Question: {query}
+
+Generated Answer: {answer}
+
+Supporting Context: {context}
+
+Please assess:
+
+1. **Accuracy**: Is the answer factually correct based on the context?
+2. **Completeness**: Does it address all aspects of the question?
+3. **Evidence Support**: Is the answer well-supported by the provided context?
+4. **Clarity**: Is the answer clear and well-structured?
+5. **Limitations**: Are there any gaps or limitations in the answer?
+
+Based on your assessment, provide:
+- A verification score (1-10)
+- Specific areas for improvement
+- An improved version of the answer if needed
+
+Focus on making the answer as accurate and helpful as possible.
