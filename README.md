@@ -227,3 +227,30 @@ Capstone project demonstrating Python, NLP, and AI-assisted research automation.
 ✔️ Batch CSV reporting and dashboard visualization  
 ✔️ Ready for grading and extension  
 ✔️ Compatible with any academic PDF using TF-IDF + Mistral API
+
+🏁 Final Capstone Submission Summary
+
+The ResearchGPT Assistant project demonstrates a complete end-to-end AI research pipeline built in Python. It automates the process of analyzing academic papers by extracting text from PDFs, cleaning and chunking content, retrieving relevant sections via TF-IDF search, and generating AI-powered summaries and analytical insights using the Mistral API.
+
+This project showcases key technical competencies including:
+
+Advanced Python scripting and modular design (src/ package structure)
+
+Environment management (uv venv, .env, direnv)
+
+PDF parsing, text preprocessing, and metadata extraction
+
+TF-IDF indexing, semantic retrieval, and prompt-based summarization
+
+AI integration via the Mistral LLM API
+
+CSV batch reporting, metadata tracking, and notebook-based analytics (quickstart.ipynb)
+
+Testing and validation were completed successfully:
+✅ End-to-end run via python main.py --pdf ...
+✅ Batch processing with reporting (--data-dir ... --report)
+✅ Jupyter notebook walkthrough with clean execution
+✅ Results stored under results/summaries/, analyses/, and metadata/
+✅ Verified runtime tracking and correct CSV export
+
+This final version (v1.0) is fully functional, reproducible, and submission-ready, representing a complete AI-assisted research analysis pipeline built from scratch and verified through real API interaction and notebook visualization.
