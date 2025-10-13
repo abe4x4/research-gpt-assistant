@@ -1,0 +1,7 @@
+- The paper presents a Transformer model for machine translation, which achieves better BLEU scores than previous state-of-the-art models on the English-to-German and English-to-French newstest2014 tests.
+- The Transformer model is trained at a fraction of the cost of competitive models, with the big model achieving a BLEU score of 41.0 on the WMT 2014 English-to-French translation task, outperforming all previously published single models.
+- The Transformer model uses dropout rate Pdrop= 0.1, instead of 0.3, and averages the last 20 checkpoints for the big models, while averaging the last 5 checkpoints for the base models.
+- The paper compares the computational complexity of self-attention layers and recurrent layers, finding that self-attention layers are faster when the sequence length is smaller than the representation dimensionality, which is most often the case with sentence representations used by state-of-the-art models in machine translations.
+- The models were trained on one machine with 8 NVIDIA P100 GPUs, with the base models taking about 0.4 seconds per training step and the big models taking 1.0 seconds per step. The base models were trained for 100,000 steps or 12 hours, while the big models were trained for 300,000 steps (3.5 days).
+- The paper uses the Adam optimizer with β1= 0.9, β2= 0.98, and ϵ= 10−9, and varies the learning rate over the course of training according to a specific formula.
+- The paper employs three types of regularization during training: dropout, label smoothing, and weight decay.

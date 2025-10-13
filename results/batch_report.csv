@@ -1,0 +1,3 @@
+timestamp,file,query_used,summary_path,analysis_path,duration_sec
+2025-10-11T17:12:07,attention_is_all_you_need.pdf,Summarize contributions and limitations.,results/summaries/attention_is_all_you_need_summary.md,results/analyses/attention_is_all_you_need_analysis.md,6.54
+2025-10-11T17:24:45,attention_is_all_you_need.pdf,Summarize contributions and limitations.,results/summaries/attention_is_all_you_need_summary.md,results/analyses/attention_is_all_you_need_analysis.md,6.59
