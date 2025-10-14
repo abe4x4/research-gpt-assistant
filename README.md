@@ -1,88 +1,84 @@
-# 🧠 ResearchGPT Assistant
+ResearchGPT Assistant — Capstone Project
 
-## 📘 Project Overview
+Capstone Progress Checklist
+Completed
+- Create GitHub repo and initialize project
+- Set up virtual environment (uv venv .venv)
+- Install dependencies from requirements.txt
+- Configure .env with MISTRAL_API_KEY and test connectivity
+- Add sample papers (attention_is_all_you_need.pdf, another_paper.pdf)
+- Implement PDF text extraction and cleaning
+- Implement chunking + TF-IDF index + retrieval
+- Summarization pipeline (guided by query)
+- Analysis pipeline (contributions, limitations, etc.)
+- Save summaries (results/summaries/)
+- Save analyses (results/analyses/)
+- Save per-PDF metadata JSON (results/metadata/)
+- Generate CSV report (results/batch_report.csv)
+- Add prompt library (prompts/)
+- Record prompt_file used in metadata JSON
+- Add Jupyter notebook for testing (notebooks/quickstart.ipynb)
+- Implement bonus paper comparison feature
+- Implement demo runner script (demo_run.py)
 
-ResearchGPT Assistant is an intelligent research tool that leverages advanced AI techniques to help researchers process academic documents, generate insights, and automate research workflows.
+Future Enhancements
+- Multi-PDF semantic search and cross-paper summaries
+- Richer metadata (citations, venues, year)
+- Export results to CSV/JSONL/HTML
+- Evaluation metrics (ROUGE, BLEU)
+- Visual report generation (charts, graphs)
+- Streamlit or web-based UI
 
-This project is the **capstone project** and demonstrates the integration of:
-- Python fundamentals
-- NLP preprocessing
-- Information retrieval
-- AI summarization
-- Research automation
+Project Overview
+ResearchGPT Assistant is an intelligent AI-powered research analysis tool that processes academic papers, extracts insights, and automates summarization workflows. It demonstrates a full end-to-end AI project pipeline built in Python for the Code:You Capstone Project.
 
----
+Goals
+- Streamline research paper summarization and analysis
+- Build reusable NLP utilities for PDF text processing
+- Showcase modular Python design and practical AI integration
+- Exceed capstone requirements with bonus functionality
 
-## ✅ Capstone Progress Checklist
+Features
+Core Capabilities
+- Document Processing: Extract and clean text from PDF research papers.
+- Intelligent Search: TF-IDF based chunk retrieval for focused summaries.
+- Summarization: Generate high-quality summaries using Mistral AI.
+- Analysis: Provide structured breakdowns (methods, contributions, limitations).
+- Metadata Extraction: Save structured metadata JSON for each paper.
+- Batch Processing: Handle multiple PDFs at once with a CSV report.
+- Prompt Library: Supports multiple prompt styles for different research tasks.
 
-### Completed
-- [x] Create GitHub repo and initialize project
-- [x] Set up virtual environment (`uv venv .venv`)
-- [x] Install dependencies from `requirements.txt`
-- [x] Configure `.env` with `MISTRAL_API_KEY` and test connectivity
-- [x] Add sample paper (`attention_is_all_you_need.pdf`)
-- [x] Implement PDF text extraction and cleaning
-- [x] Implement chunking + TF-IDF index + retrieval
-- [x] Summarization pipeline (guided by query)
-- [x] Analysis pipeline (contributions, limitations, etc.)
-- [x] Save summaries (`results/summaries/`)
-- [x] Save analyses (`results/analyses/`)
-- [x] Save per-PDF metadata JSON (`results/metadata/`)
-- [x] Add prompt library (`prompts/`)
-- [x] Implement batch report CSV logging
-- [x] Add timeout flag and error handling for API calls
+Advanced Prompting Techniques
+- Chain-of-Thought Reasoning
+- Self-Consistency and ReAct Workflows
+- Verification and Editing Prompts
+- Explain Like I’m 5 Mode
+- Question-Answer Contextual Summaries
 
-### In Progress
-- [ ] Improve interactive notebook visualizations
-- [ ] Add multi-PDF semantic search demo in notebook
-
-### Future Enhancements
-- [ ] Richer metadata (citations, venues, year)
-- [ ] Export results to CSV/JSONL
-- [ ] Evaluation metrics (ROUGE, BLEU)
-- [ ] Add frontend visualization for batch report
-
----
-
-## ✨ Features
-
-### Core Capabilities
-- **Document Processing**: Extract and process text from PDF research papers.
-- **Intelligent Search**: TF-IDF based similarity search for relevant chunk retrieval.
-- **Summarization**: Generate concise summaries guided by custom prompts or queries.
-- **Analysis**: Deeper breakdowns of methodology, contributions, and limitations.
-- **Metadata Extraction**: Save paper metadata (title, authors, abstract) into structured JSON.
-- **Prompt Library**: Reusable templates for research reasoning and QA.
-- **Batch Reporting**: Generate per-run CSV summaries of all processed PDFs.
-- **Timeout Handling**: Graceful termination when network/API stalls.
-
----
-
-## 📂 Project Structure
-
+Project Structure
 research_gpt_assistant/
-├── notebooks/
-│   └── quickstart.ipynb
 ├── data/
 │   └── sample_papers/
+│       ├── attention_is_all_you_need.pdf
+│       └── another_paper.pdf
+│
 ├── results/
 │   ├── summaries/
 │   ├── analyses/
 │   ├── metadata/
+│   ├── comparisons/
 │   └── batch_report.csv
+│
 ├── prompts/
-│   ├── basic_qa.txt
 │   ├── chain_of_thought.txt
+│   ├── self_consistency.txt
+│   ├── react_research.txt
 │   ├── document_summary.txt
 │   ├── qa_with_context.txt
-│   ├── react_research.txt
-│   ├── self_consistency.txt
 │   ├── verify_answer.txt
 │   ├── workflow_conclusion.txt
-│   ├── summarize_contributions.txt
-│   ├── summarize_limitations.txt
-│   ├── explain_like_im_5.txt
-│   └── system.md
+│   └── basic_qa.txt
+│
 ├── src/
 │   ├── pdf_utils.py
 │   ├── text_utils.py
@@ -92,127 +88,114 @@ research_gpt_assistant/
 │   ├── io_utils.py
 │   ├── metadata_utils.py
 │   └── report_utils.py
+│
+├── notebooks/
+│   └── quickstart.ipynb
+│
 ├── main.py
+├── demo_run.py
 ├── requirements.txt
+├── .env
+├── .gitignore
 └── README.md
 
----
-
-## ⚙️ Setup Instructions
-
-### 1️⃣ Clone the repo
+Setup Instructions
+1. Clone the repo
 git clone https://github.com/abe4x4/research-gpt-assistant.git
 cd research-gpt-assistant
 
-### 2️⃣ Create virtual environment
+2. Create and activate a virtual environment
 uv venv .venv
 source .venv/bin/activate
 
-### 3️⃣ Install dependencies
-uv pip install -r requirements.txt
+3. Install dependencies
+pip install -r requirements.txt
 
-### 4️⃣ Configure your API key
-Create `.env` file:
+4. Configure your API key
+Create a .env file in the project root:
 MISTRAL_API_KEY=your_api_key_here
-
-Then load it:
+Then reload:
 export $(grep -v '^#' .env | xargs)
 
-### 5️⃣ Test connectivity
-python - <<'PY'
-import os, requests
-key = os.getenv("MISTRAL_API_KEY")
-resp = requests.get("https://api.mistral.ai/v1/models", headers={"Authorization": f"Bearer {key}"})
-print(resp.status_code, resp.text[:200])
-PY
-
-✅ You should see a `200` response.
-
----
-
-## ▶️ Usage Examples
-
-### Process a single PDF
+Usage Examples
+Single PDF mode
 python main.py --pdf data/sample_papers/attention_is_all_you_need.pdf
 
-### Process all PDFs in folder
-python main.py --data-dir data/sample_papers
-
-### Add custom query
-python main.py --data-dir data/sample_papers --query "Summarize contributions and limitations"
-
-### Use a specific prompt file
-python main.py --data-dir data/sample_papers --prompt prompts/chain_of_thought.txt
-
-### Generate batch report CSV
+Batch processing mode
 python main.py --data-dir data/sample_papers --report
 
-### Adjust API timeout
-python main.py --data-dir data/sample_papers --timeout 60
+Custom query
+python main.py --pdf data/sample_papers/attention_is_all_you_need.pdf --query "Summarize contributions and limitations."
 
----
+Bonus Feature: Paper Comparison
+Compare two research papers directly using Mistral AI’s latest SDK:
+python main.py --compare data/sample_papers/attention_is_all_you_need.pdf data/sample_papers/another_paper.pdf
+Output:
+A Markdown comparison file is created in:
+results/comparisons/compare_attention_is_all_you_need_vs_another_paper.md
 
-## 📊 Example Output
+Project Demonstration (demo_run.py)
+A single file to run all project stages automatically — perfect for presentation and grading.
+Run the demo:
+python demo_run.py
+What it does:
+1. Runs single-PDF summarization
+2. Runs batch mode + generates CSV report
+3. Runs the bonus comparison feature
+4. Confirms all result files exist
+Example output:
+=== STEP 1: Single PDF Summarization & Analysis ===
+✅ Summary → results/summaries/attention_is_all_you_need_summary.md
+✅ Analysis → results/analyses/attention_is_all_you_need_analysis.md
+=== STEP 2: Batch Mode with CSV Report ===
+✅ batch_report.csv created
+=== STEP 3: Bonus - Compare Two Papers ===
+✅ Comparison saved to results/comparisons/...
+=== STEP 4: Validate Outputs ===
+✅ summaries/ → 1 files
+✅ analyses/ → 1 files
+✅ metadata/ → 1 files
+✅ comparisons/ → 1 files
+✅ CSV Report found
+🎓 Demo completed successfully!
 
-Metadata JSON (`results/metadata/attention_is_all_you_need_meta.json`):
+Example Output
+Example metadata JSON (results/metadata/attention_is_all_you_need_meta.json):
 {
   "file": "attention_is_all_you_need.pdf",
   "pdf_path": "data/sample_papers/attention_is_all_you_need.pdf",
   "title": "Attention Is All You Need",
-  "authors": "Vaswani et al.",
+  "authors": "Unknown",
   "abstract": "The dominant sequence transduction models...",
   "query_used": "Summarize contributions and limitations.",
-  "prompt_file": "prompts/chain_of_thought.txt",
   "outputs": {
     "summary_md": "results/summaries/attention_is_all_you_need_summary.md",
     "analysis_md": "results/analyses/attention_is_all_you_need_analysis.md"
   }
 }
 
-Batch Report (`results/batch_report.csv`):
-timestamp,file,query_used,summary_path,analysis_path,duration_sec
-2025-10-11T16:12:06,attention_is_all_you_need.pdf,Summarize contributions and limitations.,results/summaries/attention_is_all_you_need_summary.md,results/analyses/attention_is_all_you_need_analysis.md,11.46
+Prompt Library Overview
+Each file in prompts/ defines a reusable research assistant template:
+chain_of_thought.txt — step-by-step reasoning
+self_consistency.txt — alternate perspectives
+react_research.txt — reasoning with Thought-Action-Observation
+document_summary.txt — full structured summary
+qa_with_context.txt — contextual Q&A
+verify_answer.txt — validate AI output
+workflow_conclusion.txt — determine sufficiency
+basic_qa.txt — minimal query-response
+These templates enable flexible AI behavior for different research goals.
 
----
+Author
+Ibrahim Abouzeid (@abe4x4)
+Built as part of the Code:You AI Developer Program Capstone Project.
+Demonstrates advanced Python, NLP, and AI workflow automation.
 
-## 📚 Prompt Library
-
-The ResearchGPT Assistant includes a library of reusable prompt templates used to control summarization, analysis, reasoning, and research workflow behavior.
-
-### 🟢 Basic Prompts (Original Set)
-summarize_contributions.txt → Focus on key contributions of the paper  
-summarize_limitations.txt → Highlight weaknesses or assumptions  
-explain_like_im_5.txt → Simplify technical content for general audiences  
-
-### 🔵 Advanced Mentor-Style Prompts (Extended Set)
-chain_of_thought.txt → Step-by-step logical reasoning for complex questions  
-self_consistency.txt → Encourages alternative reasoning paths for diversity  
-react_research.txt → Uses the “Thought → Action → Observation” reasoning loop  
-document_summary.txt → Produces structured summaries with key sections  
-qa_with_context.txt → Context-based research question answering  
-verify_answer.txt → Quality control: evaluates answer accuracy and completeness  
-basic_qa.txt → Simple contextual question-answer prompt  
-workflow_conclusion.txt → Determines if the research workflow has sufficient information  
-
-### 🧠 Internal Prompt
-system.md → Internal system prompt for maintaining consistent AI behavior  
-
-These templates are automatically discovered from the `prompts/` directory at runtime and can be customized without modifying the codebase.
-
----
-
-## 🧩 Developer Notes
-
-- `main.py` supports both single and batch PDF processing.
-- All results are saved in timestamped subfolders for traceability.
-- Batch report generation ensures reproducibility for large-scale testing.
-- Jupyter notebook (`quickstart.ipynb`) demonstrates full pipeline step-by-step.
-
----
-
-## ✍️ Author
-
-Built by **Ibrahim Abouzeid (@abe4x4)**  
-As a capstone project to master **Python**, **NLP**, and **AI-assisted research workflows**.
-
----
+Notes
+This version uses the new mistralai SDK (v1.9+) with modern Mistral() client.
+Older versions (MistralClient) are deprecated.
+This project:
+- Exceeds minimum capstone requirements
+- Demonstrates clean modular design
+- Supports bonus research comparison
+- Includes automated testing and reporting
