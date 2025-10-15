@@ -186,6 +186,32 @@ workflow_conclusion.txt — determine sufficiency
 basic_qa.txt — minimal query-response
 These templates enable flexible AI behavior for different research goals.
 
+
+## Bonus Feature: Visual Summary Dashboard
+
+The project now includes an interactive analytics dashboard to visualize the performance of the ResearchGPT Assistant.
+
+Features:
+- Runtime Visualization: Displays the processing duration for each PDF.
+- Word Count Analysis: Compares summary and analysis word counts.
+- Automated Insights: Prints dataset statistics (total processed, average runtime, min/max duration).
+
+How to Run:
+1. Open the notebook:
+   notebooks/visual_dashboard.ipynb
+   or run it as a script:
+   python notebooks/visual_dashboard.py
+
+2. Ensure your batch report exists:
+   results/batch_report.csv
+
+3. The dashboard will:
+   - Load the batch report
+   - Generate bar charts for runtime and word counts
+   - Display summary insights in the output cell
+
+This feature demonstrates data interpretation and performance monitoring, enhancing the analytical depth of the ResearchGPT Assistant.
+
 Author
 Ibrahim Abouzeid (@abe4x4)
 Built as part of the Code:You AI Developer Program Capstone Project.
