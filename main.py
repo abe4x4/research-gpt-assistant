@@ -1,76 +1,91 @@
 #!/usr/bin/env python3
 """
-ResearchGPT Assistant
----------------------------------------
-Now with:
-- --report flag to generate batch summary CSV
-- --timeout flag to control API timeout
-- Live progress logging for each stage
+ResearchGPT Assistant — Capstone Project
+Main entry point for:
+  - Single or batch PDF processing
+  - Summarization and analysis
+  - Metadata + CSV report saving
+  - Bonus: PDF comparison feature
 """
 
-import os, json, time, argparse
+import os
+import json
+import time
+import argparse
 from pathlib import Path
-from datetime import datetime
 from typing import List, Tuple
 
+from mistralai import Mistral  # ✅ new API client (replaces MistralClient)
+
+# --- Project imports ---
 from src.config import MISTRAL_API_KEY
 from src.pdf_utils import load_all_pdfs_text
 from src.text_utils import clean_text, chunk_text
 from src.indexer import build_index, search
 from src.summarizer import summarize_chunks
 from src.analyst import analyze_chunks
-from src.metadata_utils import extract_metadata
 from src.io_utils import safe_stem
+from src.metadata_utils import extract_metadata
 from src.report_utils import append_report_row
 
+# --- Constants & directories ---
 DATA_DIR = Path("data/sample_papers")
-SUM_DIR  = Path("results/summaries")
-ANA_DIR  = Path("results/analyses")
-META_DIR = Path("results/metadata")
-SUM_DIR.mkdir(parents=True, exist_ok=True)
-ANA_DIR.mkdir(parents=True, exist_ok=True)
-META_DIR.mkdir(parents=True, exist_ok=True)
+RESULTS_DIR = Path("results")
+SUM_DIR = RESULTS_DIR / "summaries"
+ANA_DIR = RESULTS_DIR / "analyses"
+META_DIR = RESULTS_DIR / "metadata"
+COMP_DIR = RESULTS_DIR / "comparisons"
+for d in [SUM_DIR, ANA_DIR, META_DIR, COMP_DIR]:
+    d.mkdir(parents=True, exist_ok=True)
 
 
-# ---------------------- Helper ----------------------
+# ---------------------------------------------------------------
+# Utility Functions
+# ---------------------------------------------------------------
+
 def ensure_api_key():
+    """Ensure MISTRAL_API_KEY is loaded or raise a clear error."""
     if not MISTRAL_API_KEY:
-        raise RuntimeError("❌ MISTRAL_API_KEY is missing — check your .env file.")
+        raise RuntimeError(
+            "❌ MISTRAL_API_KEY not found. Please add it to .env and reload the environment."
+        )
 
-
-# ---------------------- Core ----------------------
-def summarize_and_analyze_pdf(pdf_path: Path, raw_text: str, query: str, timeout: int = 60) -> Tuple[Path, Path]:
+def summarize_and_analyze_pdf(pdf_path: Path, raw_text: str, query: str) -> Tuple[Path, Path, float]:
+    """Perform the summarization and analysis pipeline for a single PDF."""
     start_time = time.time()
-    print(f"⏳ Processing {pdf_path.name} ...")
 
     md = extract_metadata(pdf_path)
-    title   = md.get("title") or pdf_path.stem
-    authors = md.get("authors") or "Unknown"
+    title = md.get("title", pdf_path.stem)
+    authors = md.get("authors", "Unknown")
     abstract = md.get("abstract")
 
     txt = clean_text(raw_text)
     chunks = chunk_text(txt, max_chars=1500, overlap=150)
     if not chunks:
-        raise RuntimeError(f"No extractable text from: {pdf_path.name}")
+        raise ValueError(f"No extractable text from {pdf_path.name}")
 
     labeled_chunks: List[Tuple[str, str]] = [(f"{pdf_path.stem} [chunk {i+1}]", ch) for i, ch in enumerate(chunks)]
     index = build_index(labeled_chunks)
     hits = search(index, query, k=5)
     top_chunks = [text for _s, (_lbl, text) in hits]
 
-    try:
-        summary_md = summarize_chunks(MISTRAL_API_KEY, title, top_chunks)
-        analysis_md = analyze_chunks(MISTRAL_API_KEY, title, top_chunks)
-    except Exception as e:
-        raise RuntimeError(f"⚠️ API request failed ({type(e).__name__}): {e}")
-
+    # Summarization
+    header = f"# {title}\n\n**Authors:** {authors}\n\n"
+    if abstract:
+        header += f"**Abstract:** {abstract}\n\n---\n\n"
+    summary_md = header + summarize_chunks(MISTRAL_API_KEY, title, top_chunks)
     sum_path = SUM_DIR / f"{safe_stem(pdf_path)}_summary.md"
-    ana_path = ANA_DIR / f"{safe_stem(pdf_path)}_analysis.md"
     sum_path.write_text(summary_md, encoding="utf-8")
+
+    # Analysis
+    analysis_md = analyze_chunks(MISTRAL_API_KEY, title, top_chunks)
+    ana_path = ANA_DIR / f"{safe_stem(pdf_path)}_analysis.md"
     ana_path.write_text(analysis_md, encoding="utf-8")
 
+    # Metadata JSON
     meta = {
         "file": pdf_path.name,
+        "pdf_path": str(pdf_path),
         "title": title,
         "authors": authors,
         "abstract": abstract,
@@ -79,59 +94,115 @@ def summarize_and_analyze_pdf(pdf_path: Path, raw_text: str, query: str, timeout
             "summary_md": str(sum_path),
             "analysis_md": str(ana_path),
         },
-        "timestamp": datetime.now().isoformat()
     }
     meta_path = META_DIR / f"{safe_stem(pdf_path)}_meta.json"
-    meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+    meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
-    elapsed = time.time() - start_time
-    print(f"✅ Done {pdf_path.name} in {elapsed:.1f}s")
-
-    return sum_path, ana_path, elapsed
+    duration = round(time.time() - start_time, 2)
+    return sum_path, ana_path, duration
 
 
-# ---------------------- Main ----------------------
+# ---------------------------------------------------------------
+# Bonus Feature: Compare Two PDFs
+# ---------------------------------------------------------------
+
+def compare_pdfs(pdf1: Path, pdf2: Path):
+    """Compare two PDFs using the new Mistral SDK."""
+    print("🧠 Comparing papers:")
+    print(f"  1️⃣ {pdf1.name} \n  2️⃣ {pdf2.name}")
+
+    pairs1 = load_all_pdfs_text(pdf1.parent)
+    pairs2 = load_all_pdfs_text(pdf2.parent)
+    raw1 = next((r for p, r in pairs1 if p == pdf1), None)
+    raw2 = next((r for p, r in pairs2 if p == pdf2), None)
+
+    if not raw1 or not raw2:
+        raise ValueError("Could not extract text from one or both PDFs.")
+
+    # ✅ Use new Mistral client
+    client = Mistral(api_key=MISTRAL_API_KEY)
+
+    prompt = f"""
+Compare the following two research papers in terms of:
+- Main research questions
+- Methodologies
+- Findings
+- Strengths and limitations
+- Overall impact and novelty
+
+Paper 1 ({pdf1.name}):
+{raw1[:2000]}
+
+Paper 2 ({pdf2.name}):
+{raw2[:2000]}
+
+Provide a concise, well-structured comparison summary.
+"""
+
+    # ✅ New client call syntax
+    response = client.chat.complete(
+        model="mistral-large-latest",
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    # ✅ FIXED: Use the correct response structure for Mistral AI SDK
+    comparison_text = response.choices[0].message.content
+    
+    output_path = COMP_DIR / f"compare_{safe_stem(pdf1)}_vs_{safe_stem(pdf2)}.md"
+    output_path.write_text(comparison_text, encoding="utf-8")
+
+    print(f"✅ Comparison saved to: {output_path}")
+    return output_path
+
+
+# ---------------------------------------------------------------
+# Main Entry Point
+# ---------------------------------------------------------------
+
 def main():
-    ensure_api_key()
-
     parser = argparse.ArgumentParser(description="ResearchGPT Assistant CLI")
-    parser.add_argument("--data-dir", type=str, default=str(DATA_DIR), help="Directory containing PDF files")
-    parser.add_argument("--pdf", type=str, help="Process only this PDF file")
-    parser.add_argument("--query", type=str, default="Summarize contributions and limitations.", help="Query for summarization")
-    parser.add_argument("--timeout", type=int, default=60, help="Timeout (seconds) for API calls")
-    parser.add_argument("--report", action="store_true", help="Save a batch summary report CSV")
+    parser.add_argument("--pdf", type=str, help="Path to a single PDF file")
+    parser.add_argument("--data-dir", type=str, default="data/sample_papers", help="Directory containing PDFs")
+    parser.add_argument("--query", type=str, default="What problem does this paper solve?", help="User query for summarization")
+    parser.add_argument("--report", action="store_true", help="Generate batch CSV report")
+    parser.add_argument("--compare", nargs=2, metavar=("PDF1", "PDF2"), help="Compare two research papers")
     args = parser.parse_args()
 
-    data_dir = Path(args.data_dir)
-    query = args.query
-    timeout = args.timeout
-    generate_report = args.report
+    ensure_api_key()
+
+    if args.compare:
+        pdf1 = Path(args.compare[0])
+        pdf2 = Path(args.compare[1])
+        compare_pdfs(pdf1, pdf2)
+        return
 
     if args.pdf:
         pdf_path = Path(args.pdf)
         print(f"📄 Processing single PDF: {pdf_path.name}")
-        pairs = [(pdf_path, pdf_path.read_bytes())] if pdf_path.exists() else []
-    else:
-        pairs = load_all_pdfs_text(data_dir)
-
-    if not pairs:
-        print(f"❌ No PDFs found in {data_dir}. Add files or check path.")
+        pairs = load_all_pdfs_text(pdf_path.parent)
+        raw_text = next((r for p, r in pairs if p == pdf_path), None)
+        if not raw_text:
+            print(f"❌ Could not extract text from {pdf_path}")
+            return
+        s, a, dur = summarize_and_analyze_pdf(pdf_path, raw_text, args.query)
+        print(f"✅ Summary → {s}")
+        print(f"✅ Analysis → {a}")
+        print(f"⏱ Duration: {dur:.2f}s")
         return
 
-    batch_start = time.time()
+    data_dir = Path(args.data_dir)
+    pairs = load_all_pdfs_text(data_dir)
+    if not pairs:
+        print(f"No PDFs found in {data_dir}")
+        return
+
     for pdf_path, raw in pairs:
         try:
-            s, a, dur = summarize_and_analyze_pdf(pdf_path, raw, query, timeout)
-            if generate_report:
-                append_report_row(pdf_path, query, s, a, dur)
+            s, a, dur = summarize_and_analyze_pdf(pdf_path, raw, args.query)
+            print(f"✅ Processed: {pdf_path.name}")
+            append_report_row(pdf_path, args.query, s, a, dur)
         except Exception as e:
             print(f"[WARN] {pdf_path.name}: {e}")
-
-    if generate_report:
-        print("📊 Batch summary written to results/batch_report.csv")
-
-    print(f"🏁 All done in {time.time() - batch_start:.1f}s")
-
 
 if __name__ == "__main__":
     main()
