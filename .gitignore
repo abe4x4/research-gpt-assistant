@@ -1,0 +1,29 @@
+# === Environment & local config ===
+.venv/
+.env
+.envrc
+__pycache__/
+*.pyc
+*.pyo
+
+# === IDE and system files ===
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# === Results & generated content ===
+results/
+data/sample_papers/*.pdf:Zone.Identifier
+*.csv
+*.json
+*.md
+
+# === Dependencies ===
+requirements.lock
+
+# === Notebooks auto checkpoints ===
+.ipynb_checkpoints/
+
+# === Logs ===
+*.log
