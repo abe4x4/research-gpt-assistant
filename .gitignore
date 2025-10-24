@@ -27,3 +27,5 @@ requirements.lock
 
 # === Logs ===
 *.log
+Presentation.txt
+data/sample_papers/another_paper.pdf
